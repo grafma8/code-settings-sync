@@ -1,6 +1,6 @@
 "use strict";
 
-import * as GitHubApi from "@octokit/rest";
+import { Octokit } from "@octokit/rest";
 import * as HttpsProxyAgent from "https-proxy-agent";
 import * as vscode from "vscode";
 import Commons from "../../commons";
@@ -17,7 +17,7 @@ interface IEnv {
 export class GitHubService {
   public userName: string = null;
   public name: string = null;
-  private github: GitHubApi = null;
+  private github: Octokit = null;
   private GIST_JSON_EMPTY: any = {
     description: "Visual Studio Code Sync Settings Gist",
     public: false,
@@ -47,7 +47,7 @@ export class GitHubService {
   };
 
   constructor(userToken: string, basePath: string) {
-    const githubApiConfig: GitHubApi.Options = {};
+    const githubApiConfig: Octokit.Options = {};
 
     const proxyURL: string =
       vscode.workspace.getConfiguration("http").get("proxy") ||
@@ -65,7 +65,7 @@ export class GitHubService {
       githubApiConfig.auth = `token ${userToken}`;
     }
     try {
-      this.github = new GitHubApi(githubApiConfig);
+      this.github = new Octokit(githubApiConfig);
     } catch (err) {
       console.error(err);
     }
@@ -123,10 +123,10 @@ export class GitHubService {
     }
   }
 
-  // This should return GitHubApi.Response<GitHubApi.GistsGetResponse> but Types are wrong
+  // This should return Octokit.Response<Octokit.GistsGetResponse> but Types are wrong
   public async ReadGist(
     GIST: string
-  ): Promise<GitHubApi.Response<GitHubApi.GistsGetResponse>> {
+  ): Promise<Octokit.Response<Octokit.GistsGetResponse>> {
     const promise = this.github.gists.get({ gist_id: GIST });
     const res = await promise.catch(err => {
       if (String(err).includes("HttpError: Not Found")) {
